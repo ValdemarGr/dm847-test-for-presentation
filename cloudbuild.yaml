@@ -1,0 +1,21 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Build and test
+    entrypoint: 'bash'
+    args: ['-c', 'docker build -t eu.gcr.io/$PROJECT_ID/hello-test:$SHORT_SHA .']
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Push
+    args: ['push', 'eu.gcr.io/$PROJECT_ID/hello-test:$SHORT_SHA']
+  - name: 'gcr.io/cloud-builders/kubectl'
+    id: Deploy
+    args:
+      - 'set'
+      - 'image'
+      - 'statefulset/hello-test'
+      - 'hello-test-container=eu.gcr.io/$PROJECT_ID/hello-test:$SHORT_SHA'
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=europe-west4-a'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=default'
+options:
+  machineType: 'N1_HIGHCPU_8'
+timeout: 300s
