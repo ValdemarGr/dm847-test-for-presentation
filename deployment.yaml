@@ -1,1 +1,37 @@
-
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: hello-test
+spec:
+  replicas: 4
+  serviceName: "hello-test"
+  selector:
+    matchLabels:
+      app: hello-test
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: hello-test
+    spec:
+      containers:
+        - name: hello-test-container
+          ports:
+            - containerPort: 9000
+          image: eu.gcr.io/dm874-250016/perb-nav-beregner
+          imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-test-service
+spec:
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+      name: hello-test
+  selector:
+    app: hello-test
+  type: LoadBalancer
